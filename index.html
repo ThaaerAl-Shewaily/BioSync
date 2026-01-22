@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioSync 2026 | نظام التحليل الحيوي الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body {
+            font-family: 'Alexandria', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #cbebff 100%);
+            color: var(--dark);
+            margin: 0;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        /* --- Header & Logo --- */
+        header {
+            background: white;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .brand i { font-size: 1.8rem; color: var(--secondary); }
+        .version-badge {
+            background: var(--dark);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            vertical-align: middle;
+        }
+
+        /* --- Main Container --- */
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* --- Input Section (Card) --- */
+        .glass-card {
+            background: var(--glass);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .section-title h2 {
+            font-size: 2rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            outline: none;
+            background: white;
+        }
+
+        /* --- Action Button --- */
+        .action-btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 20px;
+            border-radius: 16px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.4);
+        }
+
+        .action-btn:active { transform: scale(0.98); }
+
+        /* --- Results Area --- */
+        #resultsArea {
+            display: none;
+            margin-top: 50px;
+            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* --- BMI Visual Indicator --- */
+        .bmi-visual-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .bmi-bar-wrapper {
+            position: relative;
+            height: 40px;
+            background: linear-gradient(90deg, 
+                #3b82f6 0%, #3b82f6 18.5%, /* Underweight */
+                #10b981 18.5%, #10b981 25%, /* Normal */
+                #f59e0b 25%, #f59e0b 30%, /* Overweight */
+                #ef4444 30%, #ef4444 100% /* Obese */
+            );
+            border-radius: 50px;
+            margin: 40px 0 20px 0;
+        }
+
+        .bmi-marker {
+            position: absolute;
+            top: -15px;
+            left: 0; /* JS will update this */
+            width: 4px;
+            height: 70px;
+            background: var(--dark);
+            transform: translateX(-50%);
+            border-radius: 2px;
+            transition: left 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .bmi-marker::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .bmi-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 10px;
+        }
+
+        /* --- Diet Table --- */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-top: 30px;
+        }
+
+        .week-header {
+            background: var(--dark);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: var(--dark);
+            padding: 20px;
+            font-weight: 900;
+            text-align: right;
+        }
+
+        td {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            vertical-align: top;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: #f8fafc; }
+
+        .meal-icon { color: var(--primary); margin-left: 8px; }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        footer span { color: var(--primary); font-weight: bold; }
+
+        /* --- Animations --- */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Print Styles --- */
+        @media print {
+            body { background: white; -webkit-print-color-adjust: exact; }
+            header, .input-section, .action-btn, .print-hide { display: none !important; }
+            #resultsArea { display: block !important; margin: 0; animation: none; }
+            .container { max-width: 100%; margin: 0; padding: 0; }
+            .glass-card, .bmi-visual-container, .table-container {
+                box-shadow: none; border: 1px solid #000; border-radius: 0;
+            }
+            .bmi-bar-wrapper { border: 1px solid #ccc; background: linear-gradient(90deg, #eee, #ddd, #bbb, #999) !important; }
+            th { background: #ddd !important; color: black !important; }
+            .week-header { background: black !important; }
+            /* إظهار الحقوق في الطباعة */
+            footer { position: fixed; bottom: 0; width: 100%; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand">
+        <i class="fa-solid fa-dna"></i>
+        BioSync 
+        <span class="version-badge">2026 Pro</span>
+    </div>
+    <button onclick="window.print()" class="print-hide" style="background:none; border:none; color:var(--dark); cursor:pointer; font-size:1.2rem;">
+        <i class="fa-solid fa-print"></i> طباعة التقرير
+    </button>
+</header>
+
+<div class="container">
+    
+    <div class="glass-card input-section">
+        <div class="section-title">
+            <h2>إعداد ملفك الصحي</h2>
+            <p style="color:#64748b; margin-top:5px;">أدخل بياناتك ليقوم الذكاء البرمجي بتوليد النظام الأمثل</p>
+        </div>
+
+        <div class="form-grid">
+            <div class="input-group">
+                <label><i class="fa-regular fa-user"></i> الاسم الكامل</label>
+                <input type="text" id="userName" placeholder="الاسم الكريم">
+            </div>
+            
+            <div class="input-group">
+                <label><i class="fa-solid fa-venus-mars"></i> الجنس</label>
+                <select id="gender">
+                    <option value="male">ذكر</option>
+                    <option value="female">أنثى</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fa-solid fa-cake-candles"></i> العمر</label>
+                <input type="number" id="age" value="35">
+            </div>
+
+            <div class="input-group">
+                <label><i class="fa-solid fa-ruler-vertical"></i> الطول (سم)</label>
+                <input type="number" id="height" value="170">
+            </div>
+
+            <div class="input-group">
+                <label><i class="fa-solid fa-weight-scale"></i> الوزن الحالي (كغم)</label>
+                <input type="number" id="weight" value="80">
+            </div>
+
+            <div class="input-group">
+                <label><i class="fa-solid fa-bullseye"></i> الوزن المستهدف (كغم)</label>
+                <input type="number" id="targetWeight" placeholder="الهدف المطلوب">
+            </div>
+
+            <div class="input-group">
+                <label><i class="fa-solid fa-person-running"></i> مستوى النشاط</label>
+                <select id="activity">
+                    <option value="1.2">خامل (عمل مكتبي)</option>
+                    <option value="1.375">خفيف (يومين رياضة)</option>
+                    <option value="1.55">متوسط (4 أيام رياضة)</option>
+                    <option value="1.9">رياضي محترف</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fa-solid fa-wallet"></i> الميزانية (نوع الأكل)</label>
+                <select id="budget">
+                    <option value="economy">اقتصادي (متوفر في كل بيت عراقي)</option>
+                    <option value="flexible">متوسط (لحوم ونواشف)</option>
+                    <option value="premium">مفتوح (فاخر وصحي)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fa-regular fa-calendar-days"></i> مدة البرنامج</label>
+                <select id="duration">
+                    <option value="1">أسبوع واحد</option>
+                    <option value="2">أسبوعين</option>
+                    <option value="4">شهر كامل</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="action-btn" onclick="generateSystem()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>تحليل البيانات وتوليد الجدول</span>
+        </button>
+    </div>
+
+    <div id="resultsArea">
+        
+        <div class="bmi-visual-container">
+            <h3 style="margin:0; color:var(--dark);">تحليل مؤشر كتلة الجسم (BMI)</h3>
+            <div style="font-size:3rem; font-weight:900; color:var(--primary); margin:10px 0;" id="bmiDisplayValue">0.0</div>
+            <div style="font-size:1.2rem; color:#64748b;" id="bmiCategoryText">-</div>
+
+            <div class="bmi-bar-wrapper">
+                <div class="bmi-marker" id="bmiMarker" data-value="0"></div>
+            </div>
+            <div class="bmi-labels">
+                <span> سمنة مفرطة(>30)</span>
+                <span>زيادة وزن(25-30)</span>
+                <span>وزن مثالي(18.5-25)</span>
+                <span>نحافة شديدة(<18.5)</span>
+            </div>
+        </div>
+
+        <div class="form-grid" style="margin-bottom:30px;">
+            <div class="glass-card" style="padding:20px; text-align:center; background:white;">
+                <i class="fa-solid fa-fire" style="color:var(--danger); font-size:2rem; margin-bottom:10px;"></i>
+                <div style="color:#64748b;">السعرات اليومية</div>
+                <strong style="font-size:1.5rem;" id="calDisplay">0</strong>
+            </div>
+            <div class="glass-card" style="padding:20px; text-align:center; background:white;">
+                <i class="fa-solid fa-scale-balanced" style="color:var(--success); font-size:2rem; margin-bottom:10px;"></i>
+                <div style="color:#64748b;">الهدف</div>
+                <strong style="font-size:1.5rem;" id="goalDisplay">-</strong>
+            </div>
+        </div>
+
+        <div id="dietContainer"></div>
+
+        <div class="glass-card" style="margin-top:30px; border-right: 5px solid var(--warning); text-align:right;">
+            <h3><i class="fa-solid fa-lightbulb" style="color:var(--warning)"></i> توصيات المدرب الذكي:</h3>
+            <ul id="adviceList" style="line-height:2; color:#334155;"></ul>
+        </div>
+    </div>
+
+    <footer>
+        <i class="fa-solid fa-code"></i> تم التصميم والبرمجة بواسطة <span>ثائر الشويلي</span> &copy; 2026<br>
+    </footer>
+
+</div>
+
+<script>
+    // --- Audio Effect Function (Web Audio API) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSuccessSound() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(500, audioCtx.currentTime); // Sound pitch
+        oscillator.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.5);
+    }
+
+    // --- Main Logic ---
+    function generateSystem() {
+        // 1. Play Sound
+        playSuccessSound();
+
+        // 2. Gather Data
+        const name = document.getElementById('userName').value || "المشترك";
+        const gender = document.getElementById('gender').value;
+        const age = parseInt(document.getElementById('age').value);
+        const height = parseInt(document.getElementById('height').value);
+        const weight = parseInt(document.getElementById('weight').value);
+        const targetW = parseInt(document.getElementById('targetWeight').value);
+        const activity = parseFloat(document.getElementById('activity').value);
+        const budget = document.getElementById('budget').value;
+        const duration = parseInt(document.getElementById('duration').value);
+
+        if(!targetW) { alert('يرجى تحديد الوزن المستهدف'); return; }
+
+        // 3. Calculations
+        // BMR (Mifflin-St Jeor)
+        let bmr = (10 * weight) + (6.25 * height) - (5 * age) + (gender === 'male' ? 5 : -161);
+        let tdee = bmr * activity;
+
+        // Goal Logic
+        let diff = targetW - weight;
+        let goal = diff < -1 ? 'lose' : (diff > 1 ? 'gain' : 'maintain');
+        let calAdjustment = goal === 'lose' ? -500 : (goal === 'gain' ? +500 : 0);
+        let finalCals = Math.round(tdee + calAdjustment);
+        
+        // BMI Calculation
+        let heightM = height / 100;
+        let bmi = (weight / (heightM * heightM)).toFixed(1);
+
+        // 4. Update UI
+        updateBMI(bmi);
+        document.getElementById('calDisplay').innerText = finalCals + " سعرة";
+        document.getElementById('goalDisplay').innerText = goal === 'lose' ? "إنقاص وزن" : (goal === 'gain' ? "زيادة وزن" : "تثبيت");
+        
+        // 5. Generate Tables
+        generateTables(duration, budget, goal, name);
+        updateAdvice(goal);
+
+        // 6. Show Results
+        document.getElementById('resultsArea').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('resultsArea').scrollIntoView({behavior: 'smooth'});
+        }, 100);
+    }
+
+    function updateBMI(bmi) {
+        const marker = document.getElementById('bmiMarker');
+        const display = document.getElementById('bmiDisplayValue');
+        const text = document.getElementById('bmiCategoryText');
+
+        display.innerText = bmi;
+        marker.setAttribute('data-value', bmi);
+
+        // Calculate Position on bar (Scale 10 to 45 approx)
+        // Min 15, Max 40 for visual bounds
+        let percent = ((bmi - 15) / (40 - 15)) * 100;
+        if(percent < 0) percent = 0;
+        if(percent > 100) percent = 100;
+        
+        marker.style.left = percent + "%";
+
+        let cat = "";
+        let color = "";
+        if(bmi < 18.5) { cat = "نحافة (يحتاج تغذية)"; color = "#3b82f6"; }
+        else if(bmi < 25) { cat = "وزن مثالي (ممتاز)"; color = "#10b981"; }
+        else if(bmi < 30) { cat = "وزن زائد (انتبه)"; color = "#f59e0b"; }
+        else { cat = "سمنة (مرحلة الخطر)"; color = "#ef4444"; }
+
+        text.innerText = cat;
+        text.style.color = color;
+    }
+
+    function generateTables(weeks, budget, goal, userName) {
+        const container = document.getElementById('dietContainer');
+        container.innerHTML = "";
+
+        // Menus (Database)
+        const menus = {
+            economy: {
+                bf: ["بيضتين سلق + شاي", "صمونة وجبن مثلثات", "حمص مسلوق (لبلبي)", "بيض وطماطة"],
+                ln: ["تمن ومرقة فاصوليا", "تمن ومرقة بيتنجان", "شوربة عدس وخبز", "بتيته سلق وسلطة"],
+                dn: ["خيار ولبن", "طماطة وبيض سلق", "شوربة خضار", "لفات فلافل (فرن)"],
+                snack: ["رقي / بطيخ", "تمر ولبن", "بسكويت وشاي", "تفاحة أو موزة"]
+            },
+            flexible: {
+                bf: ["بيض عيون وجبن", "قيمر عرب (قليل)", "بيض بالبسطرمة", "شوفان وحليب"],
+                ln: ["دولمة عراقية", "تمن ودجاج", "تبسي دجاج", "سمك مقلي"],
+                dn: ["مشويات كباب", "صدر دجاج وتمن", "سلطة تونة", "فواكه مشكلة"],
+                snack: ["مكسرات (جوز/لوز)", "كيك منزلي", "سلطة فواكه", "عصير برتقال طبيعي"]
+            },
+            premium: {
+                bf: ["أومليت خضار", "بان كيك بروتين", "ستيك وبيض", "أجبان فاخرة"],
+                ln: ["قوزي لحم غنم", "مسكوف فاخر", "ستيك سلمون", "مشويات مشكلة"],
+                dn: ["سلطة سيزر", "فيليه سمك", "زبادي يوناني", "سوشي / بحريات"],
+                snack: ["بروتين بار", "سموذي فواكه", "مكسرات مشكلة", "أفوكادو وعسل"]
+            }
+        };
+
+        const menu = menus[budget] || menus.flexible;
+        const days = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+
+        // Quantities
+        let qRice = goal === 'lose' ? "5 ملاعق فقط" : "صحن كامل";
+        let qBread = goal === 'lose' ? "نص صمونة" : "صمونة ونص";
+
+        for(let w=1; w<=weeks; w++) {
+            let rows = "";
+            days.forEach((day, idx) => {
+                let rot = (idx + w) % 4; // Rotation logic
+                let isFri = day === 'الجمعة';
+                
+                let lunch = isFri ? (goal==='lose' ? "يوم مفتوح (وجبة واحدة)" : "وجبة عائلية مفتوحة") : `${menu.ln[rot]} <br><small style='color:var(--primary)'>(${qRice})</small>`;
+                
+                rows += `
+                <tr>
+                    <td style="font-weight:bold">${day}</td>
+                    <td>${menu.bf[rot]} <br><small>(${qBread})</small></td>
+                    <td>${lunch}</td>
+                    <td>${menu.snack[rot]}</td>
+                    <td>${menu.dn[rot]} <br><small>(بدون خبز)</small></td>
+                </tr>`;
+            });
+
+            let weekHtml = `
+            <div class="table-container" style="margin-bottom:30px;">
+                <div class="week-header">
+                    <span><i class="fa-regular fa-calendar-check"></i> الأسبوع رقم (${w}) - ${userName}</span>
+                    <i class="fa-solid fa-check-circle"></i>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="10%">اليوم</th>
+                            <th width="22%">الفطور</th>
+                            <th width="22%">الغداء</th>
+                            <th width="22%">السناك (فاكهة)</th>
+                            <th width="22%">العشاء</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+            
+            container.innerHTML += weekHtml;
+        }
+    }
+
+    function updateAdvice(goal) {
+        const list = document.getElementById('adviceList');
+        list.innerHTML = "";
+        
+        let tips = [
+            "شرب كوبين ماء قبل كل وجبة بـ 20 دقيقة (سحر التخسيس والهضم).",
+            "النوم مبكراً يساعد في تنظيم هرمون الجوع والشبع.",
+            "المشي يومياً 30 دقيقة يحسن الحالة النفسية قبل الجسدية."
+        ];
+
+        if(goal === 'lose') {
+            tips.push("ابدأ دائماً بالسلطة، ثم البروتين، واجعل الرز/الخبز آخر شيء.");
+            tips.push("ابتعد عن المشروبات الغازية تماماً واستبدلها بالماء والليمون.");
+        } else if(goal === 'gain') {
+            tips.push("لا تشرب الماء وسط الأكل حتى لا تمتلئ معدتك بسرعة.");
+            tips.push("أضف زيت الزيتون، الطحينية، والمكسرات لوجباتك لرفع السعرات بذكاء.");
+        }
+
+        tips.forEach(t => list.innerHTML += `<li>${t}</li>`);
+    }
+</script>
+
+</body>
+</html>
